@@ -2,8 +2,9 @@ import express from 'express';
 import zod from 'zod';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import User from './db';
+import User from '../db';
 import dotenv from 'dotenv'
+import auth from '../middleware/auth';
 dotenv.config()
 const signupBody = zod.object({
     username: zod.string().email(),
@@ -16,6 +17,13 @@ const signinBody = zod.object({
     username: zod.string().email(),
     password: zod.string().min(6).max(32),
 });
+
+const updateBody = zod.object({
+    password: zod.string().optional(),
+    firstName: zod.string().optional(),
+    lastName: zod.string().optional(),
+})
+
 
 const router = express.Router();
 
@@ -32,7 +40,7 @@ router.post('/signup', async (req, res) => {
     }
 
     // Hash the password before storing it
-    const hashedPassword = await bcrypt.hash(data.password, 10); 
+    const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const user = await User.create({
         username: data.username,
@@ -66,8 +74,39 @@ router.post('/signin', async (req, res) => {
         return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id },process.env.JWT_SECRET as string);
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string);
     res.json({ token });
 });
+router.put('/', auth, async (req, res) => {
+    const { success } = updateBody.safeParse(req.body)
+    if (!success) {
+        return res.status(400).json({ message: 'Invalid data provided', error: req.body.error })
+    }
+    await User.updateOne({ _id: req.body.id }, req.body)
+    res.json({ message: 'Updated Successfully' })
+})
+router.get("/bulk", async (req, res) => {
+    const filter = req.query.filter || "";
 
+    const users = await User.find({
+        $or: [{
+            firstName: {
+                "$regex": filter
+            }
+        }, {
+            lastName: {
+                "$regex": filter
+            }
+        }]
+    })
+
+    res.json({
+        user: users.map(user => ({
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id
+        }))
+    })
+})
 export default router;
