@@ -2,9 +2,9 @@ import express from 'express';
 import zod from 'zod';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import dotenv from 'dotenv'
 import User from './db';
-dotenv.config();
+import dotenv from 'dotenv'
+dotenv.config()
 const signupBody = zod.object({
     username: zod.string().email(),
     firstName: zod.string(),
@@ -41,7 +41,7 @@ router.post('/signup', async (req, res) => {
         lastName: data.lastName,
     });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string);
     res.json({
         message: "User created successfully",
         token: token,
@@ -66,7 +66,7 @@ router.post('/signin', async (req, res) => {
         return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id },process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user._id },process.env.JWT_SECRET as string);
     res.json({ token });
 });
 
