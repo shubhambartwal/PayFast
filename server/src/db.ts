@@ -5,6 +5,7 @@ interface IUser extends mongoose.Document{
     firstName:string,
     lastName:string
 }
+
 const userSchema:mongoose.Schema<IUser> = new mongoose.Schema({
     username:{type:String,required :true},
     password:{type:String,required :true},
@@ -12,4 +13,15 @@ const userSchema:mongoose.Schema<IUser> = new mongoose.Schema({
     lastName:{type:String,required :true},
 })
 const User:mongoose.Model<IUser>= mongoose.model<IUser>('User',userSchema)
-export default User;
+
+interface IAccount extends mongoose.Document{
+    userId:mongoose.Schema.Types.ObjectId,
+    balance:number
+}
+const accountSchema:mongoose.Schema<IAccount>= new mongoose.Schema({
+    userId:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true},
+    balance:{type:Number,required:true}
+})
+const Account:mongoose.Model<IAccount>=mongoose.model<IAccount>('Account',accountSchema)
+
+export  {User,Account};

@@ -2,7 +2,7 @@ import express from 'express';
 import zod from 'zod';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import User from '../db';
+import { User, Account } from '../db';
 import dotenv from 'dotenv'
 import auth from '../middleware/auth';
 dotenv.config()
@@ -49,7 +49,10 @@ router.post('/signup', async (req, res) => {
         lastName: data.lastName,
     });
 
+    //initial balance
+    await Account.create({ id: user._id, balance: 1 + Math.random() * 1000 })
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string);
+    
     res.json({
         message: "User created successfully",
         token: token,
