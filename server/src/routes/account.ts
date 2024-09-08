@@ -1,5 +1,6 @@
 import express, { Request } from 'express'
 import mongoose from 'mongoose'
+import authmiddleware from '../middleware/auth'
 // Extend the Express Request interface to include userId
 interface AuthenticatedRequest extends Request {
     userId?: string;
@@ -8,9 +9,9 @@ interface AuthenticatedRequest extends Request {
 }
 import { Account } from '../db'
 const router = express.Router()
-router.get('/balance', async (req: AuthenticatedRequest, res) => {
+router.get('/balance', authmiddleware,async (req: AuthenticatedRequest, res) => {
     try {
-        // Check if userId exists on the request
+        // Check if userId exists on the request 
         if (!req.userId) {
             return res.status(400).json({ message: 'User ID is required' });
         }
@@ -26,7 +27,7 @@ router.get('/balance', async (req: AuthenticatedRequest, res) => {
     }
 
 })
-router.post('/transfer', async (req: AuthenticatedRequest, res) => {
+router.post('/transfer',authmiddleware, async (req: AuthenticatedRequest, res) => {
     const session = await mongoose.startSession();
     try {
 
