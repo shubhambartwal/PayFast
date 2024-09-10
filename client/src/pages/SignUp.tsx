@@ -1,20 +1,38 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, ChangeEvent, FormEvent } from 'react';
+import {  useNavigate } from 'react-router-dom';
 
-const SignUp = () => {
-  const [formData, setFormData] = useState({
+interface FormData {
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+const SignUp: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
     username: '',
     password: '',
     firstName: '',
     lastName: ''
   });
 
-  const handleChange = (e: any) => {
+  const navigate = useNavigate();
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
- const handleSubmit=()=>{}
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevents page reload on form submission
+    // Handle form submission logic (e.g., sending data to API)
+    console.log(formData);
+  };
+
+  const goToSignIn = () => {
+    navigate('/signin'); // Navigate to the Sign In page
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <h1 className="text-2xl font-bold mb-4">Sign Up</h1>
@@ -71,6 +89,7 @@ const SignUp = () => {
         <button
           type="button"
           className="mt-4 bg-gray-500 text-white p-2 rounded w-full"
+          onClick={goToSignIn} // Handle navigation to Sign In page
         >
           Go to Sign In
         </button>
